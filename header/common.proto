@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "github.com/huyshop/header/common";
+
+package common;
+
+message Context {
+	string user_id = 1;
+	map<string, string> payload = 6;
+	string apikey = 2;
+}
+
+message Empty {}
+
+message MId {
+	string id = 1;
+}
+
+message Count {
+	string description = 1;
+	int64 count = 2;
+}
+
+message IsExist {
+	bool exist = 1;
+}
+
+message TTL {
+	int64 ttl = 1; // in seconds
+}

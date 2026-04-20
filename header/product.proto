@@ -1,0 +1,532 @@
+syntax = "proto3";
+
+package product;
+option go_package = "github.com/huyshop/header/product";
+import "common.proto";
+import "user.proto";
+import "voucher.proto";
+
+service ProductService {
+    // category
+    rpc ListCategory (CategoryRequest) returns (Categories);
+    rpc GetCategory (CategoryRequest) returns (Category);
+    rpc CreateCategory (Category) returns (common.Empty);
+    rpc UpdateCategory (Category) returns (common.Empty);
+    rpc DeleteCategory (Category) returns (common.Empty);
+
+    // product typereviews
+    rpc ListProductType (ProductTypeRequest) returns (ProductTypes);
+    rpc GetProductType (ProductTypeRequest) returns (ProductType);
+    rpc GetProductTypeBySlug (ProductTypeRequest) returns (ProductType);
+    rpc CreateProductType (ProductType) returns (common.Empty);
+    rpc UpdateProductType (ProductType) returns (common.Empty);
+    rpc DeleteProductType (ProductType) returns (common.Empty);
+    rpc UpdateStateProductType (ProductType) returns (common.Empty);
+    rpc CountProductType (ProductTypeRequest) returns (common.Count);
+    rpc UpdateProductTypeAdmin(ProductType) returns (common.Empty);
+
+    // product
+    rpc ListProduct (ProductRequest) returns (Products);
+    rpc GetProduct (ProductRequest) returns (Product);
+
+    // banner
+    rpc ListBanner (BannerRequest) returns (Banners);
+    rpc GetBanner (BannerRequest) returns (Banner);
+    rpc CreateBanner (Banner) returns (common.Empty);
+    rpc UpdateBanner (Banner) returns (common.Empty);
+    rpc DeleteBanner (Banner) returns (common.Empty);
+
+    // cart
+    rpc ListCart (Cart) returns (Cart);
+    rpc AddToCart (Cart) returns (Cart);
+    rpc DeleteCart (Cart) returns (Cart);
+    rpc DeleteCartItem (Cart) returns (Cart);
+
+    // order
+    rpc GetOrder (OrderRequest) returns (Order);
+    rpc CreateOrder (Order) returns (Order);
+    rpc ListOrder (OrderRequest) returns (Orders);
+    rpc CreateOrderVNpay (Order) returns (common.Empty);
+    rpc UpdateStateOrder (Order) returns (common.Empty);
+   
+    // // order detail
+    // rpc GetOrderDetail (OrderRequest) returns (Order);
+    // rpc CreateOrderDetail (OrderDetail) returns (common.Empty);
+    // rpc UpdateOrderDetail (OrderDetail) returns (common.Empty);
+    // rpc DeleteOrderDetail (OrderDetail) returns (common.Empty);
+    // rpc ListOrderDetail (OrderRequest) returns (Orders);
+
+    // // order ship
+    // rpc CreateOrderShip (Order) returns (common.Empty);
+    rpc UpdateOrderShipStatus (OrderShip) returns (common.Empty);
+    // rpc DeleteOrderShip (Order) returns (common.Empty);
+    // rpc GetOrderShip (OrderRequest) returns (Order);
+    // rpc ListOrderShip (OrderRequest) returns (Orders);
+    // rpc UpdateStateOrder (Order) returns (common.Empty);
+
+    // reviews
+    rpc ListReviews (ReviewsRequest) returns (Reviewss);
+    rpc GetReviews (ReviewsRequest) returns (Reviews);
+    rpc CreateReviews (Reviews) returns (common.Empty);
+    rpc UpdateReviews (Reviews) returns (common.Empty);
+    rpc DeleteReviews (Reviews) returns (common.Empty);
+    rpc ReplyReviews (Reviews) returns (common.Empty);
+    rpc CountReviews (ReviewsRequest) returns (common.Count);
+
+    // report
+    rpc GetReportOverview (ReportRequest) returns (ReportOverview);
+    rpc GetReportRevenue (ReportRequest) returns (ReportRevenue);
+    rpc GetReportStoreRevenue (ReportRequest) returns (ReportStoreRevenue);
+}
+
+message Category {
+    // `xorm:"pk"`
+    string id = 1;
+    string name = 2;
+    string logo = 3;
+    string state = 4;
+    enum State {
+        active = 0;
+        inactive = 1;
+    }
+    int64 created_at = 6;
+    int64 updated_at = 7;
+    string slug = 8;
+}
+
+message CategoryRequest {
+    string id = 1;
+    repeated string ids = 2;
+    string name = 3;
+    string state = 4;
+    int32 limit = 6;
+    int32 skip = 7;
+    string slug = 8;
+}
+message Categories {
+    repeated Category categories = 1;
+    int32 total = 2;
+}
+
+message ProductType {
+    // `xorm:"pk"`
+    string id = 1;
+    string name = 2;
+    string category_id = 3;
+    // `xorm:"-"`
+    Category category = 4;
+    // `xorm:"text"`
+    string description = 5;
+    string partner_id = 7;
+    // `xorm:"-"`
+    user.Partner partner = 11;
+    string state = 12;
+    enum State {
+        active = 0;
+        inactive = 1;
+        pending = 2;
+        reject = 3;
+    }
+    string store_id = 13;
+    // `xorm:"-"`
+    user.Store store = 19;
+    // `xorm:"-"`
+	repeated Product products = 14;
+    int32 quantity_sold = 10;
+    int32 views = 18;
+    map<string, string> product_details = 15;
+    int64 created_at = 16;
+    int64 updated_at = 17;
+    // `xorm:"-"`
+    repeated Reviews reviews = 21;
+    string slug = 22;
+    // `xorm:"total_reviews" json:"total_reviews"`
+    int32 total_reviews = 23;
+    // `xorm:"average_rating" json:"average_rating"`
+    float average_rating = 24;
+}
+
+message ProductTypeRequest {
+    string id = 1;
+    repeated string ids = 2;
+    repeated string partner_ids = 10;
+    string name = 3;
+    string category_id = 4;
+    string partner_id = 5;
+    string store_id = 6;
+    string state = 7;
+    int32 quantity_sold = 8;
+    int32 views = 9;
+    string order_by = 11;
+    int32 limit = 13;
+    int32 skip = 14;
+    repeated string includes = 16;
+    string slug = 12;
+    int32 price_from = 15;
+    int32 price_to = 17;
+    float rating_from = 18;
+    string category = 19;
+    int64 from = 20; // timestamp
+    int64 to = 21; // timestamp
+}
+
+message ProductTypes {
+    repeated ProductType product_types = 1;
+    int32 total = 2;
+}
+
+message Product {
+    // `xorm:"pk"`
+    string id = 1;
+    string name = 2;
+    string image = 4;
+    string product_type_id = 5;
+    // `xorm:"-"`
+	ProductType product_type = 6;
+    string state = 7;
+    enum State {
+        active = 0;
+        inactive = 1;
+        pending = 2;
+        reject = 3;
+    }
+    // `json:"origin_price"`
+    int64 origin_price = 8;
+    // `json:"sell_price"`
+    int64 sell_price = 9;
+    map<string, string> attribute_values = 22; 
+    // `json:"quantity"`
+    int32 quantity = 18;
+    int64 created_at = 19;
+    int64 updated_at = 10;
+}
+
+message ProductRequest {
+    string id = 1;
+    repeated string ids = 2;
+    repeated string product_type_ids = 3;
+    string product_type_id = 4;
+    string name = 7;
+    int64 price = 13;
+    int32 limit = 14;
+    int32 skip = 15;
+    string state = 16;
+}
+
+message Products {
+    repeated Product products = 1;
+    int32 total = 2;
+}
+
+message Banner {
+    // `xorm:"pk"`
+    string id = 1;
+    string name = 2;
+    string image = 3;
+    string url = 4;
+    string state = 5;
+    enum State {
+        active = 0;
+        inactive = 1;
+    }
+    string type = 6;
+    int32 order = 7;
+    int64 created_at = 8;
+    int64 updated_at = 9;
+}
+
+message BannerRequest {
+    string id = 1;
+    repeated string ids = 2;
+    string name = 3;
+    string state = 4;
+    string type = 5;
+    int32 limit = 7;
+    int32 skip = 6;
+}
+
+message Banners {
+    repeated Banner banners = 1;
+    int32 total = 2;
+}
+
+message Cart {
+    repeated ProductOrdered item = 1;
+    string user_id = 2;
+    repeated string product_ids = 3;
+}
+
+message CartDetail {
+    repeated ProductStore stores = 1;
+    string user_id = 2;
+    int32 total = 3;
+}
+
+message Order {
+    // `xorm:"pk"`
+    string id = 1;
+    string order_code = 2;
+    string user_id = 3;
+   // `xorm:"-"`
+    user.User user = 4;
+    int64 time_order = 5;
+    repeated ProductOrdered product_ordered = 6;
+    string state = 7;
+    enum State {
+        pending = 0;
+        processing = 1;
+        shipping = 2;
+        confirmed = 3;
+        cancelled = 4;
+        completed = 5;
+    }
+    string user_address_id = 8;
+    // `xorm:"-"`
+    user.UserAddress user_address = 9;
+    double total_money = 11;
+    string shipping_name = 14;
+    int32 shipping_fee = 12;
+    string code_id = 13;
+    // Code code = 14;
+    string method_payment = 15;
+    // `xorm:"text"`
+    string history = 16;
+    // `xorm:"-"`
+    string vnpay_return_url = 17;
+    // `xorm:"-"`
+    string vnp_redirect_url = 18;
+    // `xorm:"-"`
+    string ip_address = 19;
+    // `xorm:"-"`
+    OrderShip order_ship = 20;
+    // `xorm:"-"`
+    voucher.Voucher voucher = 22;
+    string partner_id = 23;
+    string order_ship_id = 21;
+    string store_id = 24;
+    // `xorm:"text"`
+    string cancel_reason = 25;
+}
+
+message OrderRequest {
+    string id = 1;
+    repeated string ids = 2;
+    string user_id = 3;
+    string order_code = 4;
+    string receiver_name = 5;
+    string receiver_phone = 6;
+    string state = 8;
+    int32 limit = 9;
+    int32 skip = 10;
+    string store_id = 11;
+    repeated string store_ids = 12;
+    bool cancel_order = 13;
+    string partner_id = 14;
+    int64 from = 15; // timestamp
+    int64 to = 16; // timestamp
+    string order_by = 17;
+}
+
+message Orders {
+    repeated Order orders = 1;
+    int32 total = 2;
+}
+
+message ProductOrdered {
+    string product_id = 1;
+    Product product = 2;
+    int32 quantity = 3;
+}
+
+message OrderShip {
+    // `xorm:"pk"`
+    string id = 1;
+    string order_id = 2;
+    // `xorm:"-"`
+    Order order = 3;
+    string state = 4;
+    enum State {
+        pending = 0;
+        shipping = 1;
+        delivered = 2;
+        cancelled = 3;
+        returned = 5;
+    }
+    string store_id = 5;
+    // `xorm:"-"`
+    user.Store store = 6;
+    string shipping_name = 7;
+    int32 shipping_fee = 8;
+    string shipping_phone = 9;
+    string shipping_address = 13;
+    string province = 10;
+    string district = 11;
+    string ward = 12;
+    // `xorm:"text"`
+    string history = 14; // key: state, value: timestamp
+    int64 created_at = 15;
+    int64 updated_at = 16;
+}
+
+message OrderShipRequest {
+    string id = 1;
+    repeated string ids = 2;
+    string order_id = 3;
+    string state = 4;
+    string province = 5;
+    string district = 6;
+    string ward = 7;
+    int32 limit = 8;
+    int32 skip = 9;
+}
+
+message OrderShips {
+    repeated OrderShip order_ships = 1;
+    int32 total = 2;
+}
+
+message ProductStore {
+	string id = 1;
+	string name = 2;
+	string logo = 3;
+	string address = 4;
+	string province = 5;
+	string district = 6;
+	string ward = 7;
+	string lng = 8;
+	string lat = 9;
+	string state = 10;
+	string phone_number = 13;
+	// `xorm:"text"`
+	string description = 14;
+	int64 created_at = 15;
+	int64 updated_at = 16;
+	// `xorm:"-"`
+	int32 quantity_product = 17;
+	int32 followers = 18;
+	int32 reviews = 19;
+    repeated ProductOrdered products = 20;
+}
+
+message Reviews {
+    // `xorm:"pk"`
+    string id = 1;
+    string user_id = 2;
+    // `xorm:"-"`
+    user.User user = 3;
+    string product_id = 4;
+    // `xorm:"-"`
+    Product product = 5;
+    string order_id = 6;
+    // `xorm:"-"`
+    Order order = 7;
+    string content = 8;
+    int32 rating = 9; // 1 to 5
+    repeated string images = 12; // URLs of images
+    string seller_reply = 13; // Reply from the seller
+    int64 seller_reply_at = 14; // Timestamp of the seller's reply
+    int64 created_at = 10;
+    int64 updated_at = 11;
+    string product_type_id = 15;
+}
+
+message ReviewsRequest {
+    string id = 1;
+    repeated string ids = 2;
+    string user_id = 3;
+    string product_id = 4;
+    repeated string product_ids = 8;
+    string order_id = 9;
+    repeated string order_ids = 10;
+    int32 rating = 5; // 1 to 5
+    int32 limit = 6;
+    int32 skip = 7;
+    string product_type_id = 11;
+    string order_by = 12;
+    string is_seller_reply = 13;
+}
+
+message Reviewss {
+    repeated Reviews reviews = 1;
+    int32 total = 2;
+    string product_type_id = 3;
+    float average_rating = 4;
+}
+
+message FavoriteProduct {
+    string user_id = 1;
+    string product_id = 2;
+    Product product = 3;
+}
+
+message ReportOverview {
+    // `xorm:"total_revenue" json:"total_revenue"`
+    int64 total_revenue = 1;     // Tổng doanh thu (tháng/năm)
+    // `xorm:"total_orders" json:"total_orders"`
+    int32 total_orders = 2;      // Tổng số đơn hàng(tháng/năm)
+    // `xorm:"total_users" json:"total_users"`
+    int32 total_users = 3;         // Số user mới (tháng/năm)
+    // `xorm:"total_partners" json:"total_partners"`
+    int32 total_partners = 4;      // Số đối tác mới (tháng/năm)
+    // `xorm:"total_product" json:"total_product"`
+    int32 total_product = 5;      // Số sản phẩm mới (tháng/năm)
+    // `xorm:"total_stores" json:"total_stores"`
+    int32 total_stores = 6;      // Số cửa hàng đang hoạt động
+    // `xorm:"total_vouchers" json:"total_vouchers"`
+    int32 total_vouchers = 8; // Tổng số voucher đã phát hành
+    // `xorm:"total_code_used" json:"total_code_used"`
+    int32 total_code_used = 9; // Tổng số code đã sử dụng
+    OrderStatusCount order_status = 7; // Trạng thái đơn hàng
+}
+  
+message OrderStatusCount {
+    // `xorm:"pending" json:"pending"`
+    int32 pending = 4;
+    // `xorm:"completed" json:"completed"`
+    int32 completed = 1;
+    // `xorm:"processing" json:"processing"`
+    int32 processing = 2;
+    // `xorm:"cancelled" json:"cancelled"`
+    int32 cancelled = 3;
+    // `xorm:"shipping" json:"shipping"`
+    int32 shipping = 5;
+    // `xorm:"confirmed" json:"confirmed"`
+    int32 confirmed = 6;
+}
+
+message ReportRequest {
+    int64 start_date = 1;
+    int64 end_date = 2;  
+    string partner_id = 3; // ID của đối tác (nếu có)
+    string store_id = 4;   // ID của cửa hàng (nếu có)
+    string product_type_id = 5; // ID của loại sản phẩm (nếu có)
+    string order_by = 6;   // Sắp xếp theo: "revenue", "orders", "users"
+    string group_by = 7;   // Nhóm theo: "day", "month", "year", "partner", "store", "product_type"
+    int32 limit = 8;       // Giới hạn số lượng kết quả
+    int32 skip = 9;        // Bỏ qua số lượng kết quả đầu tiên
+    int32 month = 10; // Tháng để báo cáo (nếu group_by là "month")
+    int32 year = 11; // Năm để báo cáo (nếu group_by là "year")
+}
+
+message ReportRevenue {
+    repeated string labels = 1; // Nhãn cho các cột (ví dụ: ngày, tháng, năm)
+    repeated int64 values = 2;  // Giá trị doanh thu tương ứng với các labels
+}
+
+message StoreRevenue {
+    string store_id = 1;
+    user.Store store = 2; // Thông tin cửa hàng
+    // `xorm:"total_orders" json:"total_orders"`
+    int32 total_orders = 3; // Tổng số đơn hàng
+    // `xorm:"total_revenue" json:"total_revenue"`
+    int64 total_revenue = 4; // Tổng doanh thu
+    float cancelled_rate = 5; // Tỷ lệ hủy đơn (%)
+    OrderStatusCount order_status = 6; // Trạng thái đơn hàng
+    repeated ProductType product_types = 7; // Danh sách sản phẩm bán chạy nhất
+}
+
+message ReportStoreRevenue {
+    repeated StoreRevenue store_revenues = 1; // Danh sách doanh thu của các cửa hàng
+    int32 total_stores = 2; // Tổng số cửa hàng
+    int64 total_revenue = 3; // Tổng doanh thu của tất cả cửa hàng
+}

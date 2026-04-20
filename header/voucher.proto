@@ -1,0 +1,177 @@
+syntax = "proto3";
+
+package voucher;
+option go_package = "github.com/huyshop/header/voucher";
+import "common.proto";
+import "user.proto";
+
+service VoucherService {
+  // Voucher
+  rpc CreateVoucher (Voucher) returns (common.Empty);
+  rpc UpdateVoucher (Voucher) returns (common.Empty);
+  rpc GetVoucher (Voucher) returns (Voucher);
+  rpc DeleteVoucher (Voucher) returns (common.Empty);
+  rpc ListVouchers (VoucherRequest) returns (Vouchers);
+  rpc ListVouchersCustomer (VoucherRequest) returns (Vouchers);
+
+  // Code
+  rpc CreateCode (Code) returns (common.Empty);
+  rpc UseCode (Code) returns (Code);
+  rpc ListCodes (CodeRequest) returns (Codes);
+  rpc VerifyCode (VerifyCodeRequest) returns (common.Empty);
+
+  // UserVoucher
+  rpc ListUserVouchers (UserVoucherRequest) returns (UserVouchers);
+  rpc GetUserVoucher (UserVoucher) returns (UserVoucher);
+  rpc UpdateUserVoucher (UserVoucher) returns (UserVoucher);
+  rpc CreateUserVoucher (UserVoucher) returns (UserVoucher);
+}
+
+
+message Voucher {
+  // `xorm:"pk"`
+  string id = 1;
+  string name = 2;
+  double discount_cash = 3; // số tiền giảm giá
+  int32 discount_percent = 4; // phần trăm giảm giá
+  double max_discount_cash_value = 5; // giá trị giảm giá tối đa
+  double min_total_bill_value = 6; // giá trị tối thiểu để sử dụng voucher
+  string partner_id = 7; // voucher thuộc đối tác nào
+  // `xorm:"-"`
+  user.Partner partner = 8;
+  repeated string store_ids = 9; // cửa hàng áp dụng
+  // `xorm:"-"`
+  repeated user.Store stores = 10;
+  string image = 11;
+  // `xorm:"text"`
+  string description = 12;
+  int32 total_quantity = 13; // tổng số lượng voucher
+  int32 remaining_quantity = 14; // số lượng voucher còn lại
+  int32 used_quantity = 15; // số lượng voucher đã sử dụng
+  int64 start_at = 16; // thời gian bắt đầu
+  int64 end_at = 17; // thời gian kết thúc
+  string type = 18;
+  enum Type {
+    point = 0; // voucher đổi = điểm
+    free = 1; // voucher miễn phí
+    gift = 2; // voucher quà tặng
+  }
+  int64 point_exchange = 19; // số điểm cần đổi voucher
+  string state = 20;
+  enum State {
+    active = 0;
+    inactive = 1;
+  }
+  int64 created_at = 21;
+  int64 updated_at = 22;
+}
+
+message VoucherRequest {
+  string id = 1;
+  repeated string ids = 2;
+  string name = 3;
+  int32 discount_cash = 4;
+  int32 discount_percent = 5;
+  int32 max_discount_cash_value = 6;
+  int32 min_total_bill_value = 7;
+  int32 total_quantity = 8;
+  string partner_id = 9;
+  int64 start_at = 10;
+  int64 end_at = 11;
+  string type = 12;
+  int64 point_exchange = 13;
+  string state = 14;
+  int32 limit = 15;
+  int32 skip = 16;
+}
+
+message Vouchers {
+  repeated Voucher vouchers = 1;
+  int32 total = 2; 
+}
+  
+message Code {
+  // `xorm:"pk"`
+  string id = 1;
+  string code = 2;
+  string voucher_id = 3;
+  // `xorm:"-"`
+  Voucher voucher = 12;
+  string state = 8;
+  enum State {
+    got = 0; // đã lấy
+    used = 1; // đã sử dụng
+    active = 2; // chưa lấy
+    outdate = 3; // hết hạn
+  }
+  int64 used_at = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+}
+
+message CodeRequest {
+  string id = 1;
+  repeated string ids = 2;
+  string code = 3;
+  string voucher_id = 4;
+  string state = 5;
+  int64 from = 6;
+  int64 to = 7;
+  int32 limit = 8;
+  int32 skip = 9;
+}
+
+message Codes {
+  repeated Code codes = 1;
+  int32 total = 2;
+}
+
+message VerifyCodeRequest {
+  string code_id = 1;
+  string voucher_id = 2;
+  double total_bill = 3;
+}
+  
+message UserVoucher {
+  // `xorm:"pk"`
+  string id = 1;
+  string user_id = 2;
+  // `xorm:"-"`
+  user.User user = 3;
+  string voucher_id = 4;
+  // `xorm:"-"`
+  Voucher voucher = 5;
+  string state = 6;
+  enum State {
+    got = 0;
+    used = 1;
+  }
+  string code_id = 7;
+  // `xorm:"-"`
+  Code code = 9;
+  int64	used_at = 8;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+}
+
+message UserVoucherRequest {
+  string id = 1;
+  repeated string ids = 2;
+  string user_id = 3;
+  string voucher_id = 4;
+  string type = 5;
+  string state = 6;
+  string code_id = 7; 
+  int64 used_at = 8;
+  string is_still_valid = 9;
+  int64 from = 10;
+  int64 to = 11;
+  int32 limit = 12;
+  int32 skip = 13;
+}
+
+message UserVouchers {
+  repeated UserVoucher user_vouchers = 1;
+  int32 total = 2;
+}
+  

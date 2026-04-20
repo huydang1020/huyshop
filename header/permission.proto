@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package permission;
+option go_package = "github.com/huyshop/header/permission";
+import "common.proto";
+
+service PermissionService {
+    // Role
+    rpc GetRole (RoleRequest) returns (Role);
+    rpc ListRoles (RoleRequest) returns (Roles);
+    rpc CreateRole (Role) returns (common.Empty);
+    rpc UpdateRole (Role) returns (Role);
+    rpc DeleteRole (Role) returns (common.Empty);
+
+    // Page
+    rpc GetPage (PageRequest) returns (Page);
+    rpc ListPages (PageRequest) returns (Pages);
+    rpc CreatePage (Page) returns (Page);
+    rpc UpdatePage (Page) returns (Page);
+    rpc DeletePage (Page) returns (common.Empty);
+
+    // Check access
+    rpc CheckAccess (PolicyRequest) returns (common.Empty);
+}
+
+message Role {
+    // `xorm:"pk"`
+    string id = 1;
+    // `xorm:"unique"`
+    string name = 2;
+    string description = 3;
+    // `xorm:"-"`
+    repeated Group groups = 4;
+    string state = 5;
+    enum State {
+        active = 0;
+        inactive = 1;
+    }
+    int64 created_at = 6;
+    int64 updated_at = 7;
+}
+
+message Roles {
+    repeated Role roles = 1;
+    int64 total = 2;
+}
+
+message RoleRequest {
+    string id = 1;
+    repeated string role_ids = 2;
+    string name = 3;
+    string state = 4;
+    int32 limit = 5;
+    int32 skip = 6;
+}
+
+message Group {
+    // `xorm:"pk"`
+    string role_id = 1;
+    // `xorm:"pk"`
+    string group = 2;
+    repeated string actions = 3;
+}
+
+message Page {
+    // `xorm:"pk"`
+    string id = 1;
+    string path = 2;
+    // `xorm:"extends"`
+    PageHandle handle = 3;
+    // `xorm:"-"`
+    repeated Page children = 5;
+    // `xorm:"parent_id" json:"parentId"`
+    string parent_id = 6;
+    // `xorm:"text"`
+    repeated string role_ids = 7;
+    string state = 8;
+    enum State {
+        active = 0;
+        inactive = 1;
+    }
+    int64 created_at = 9;
+    int64 updated_at = 10;
+}
+
+message PageHandle {
+    string icon = 1;
+    // `xorm:"icon_type" json:"iconType"`
+    string icon_type = 2;
+    string title = 3;
+    int32 order = 4;
+    // `xorm:"keep_alive" json:"keepAlive"`
+    bool keep_alive = 5;    
+    // `xorm:"hide_in_menu" json:"hideInMenu"`
+    bool hide_in_menu = 6;
+}
+
+message Pages {
+    repeated Page pages = 1;
+    int64 total = 2;
+}
+
+// message PageRole {
+//     // `xorm:"pk"`
+//     string role_id = 1;
+//     // `xorm:"-"`
+//     Role role = 2;
+//     // `xorm:"pk"`
+//     string page_id = 3;
+//      // `json:"actions"`
+//     repeated string actions = 4;
+// }
+
+// message PageRoleRequest {
+//     string page_id = 1;
+// 	string role_id = 2;
+// }
+
+message PageRequest {
+    string id = 1;
+    repeated string ids = 2;
+	string role_id = 3;
+    string name = 4;
+    repeated string role_ids = 5;
+    string route = 6;
+    string type = 7;
+    string parent_id = 8;
+    int32 limit = 9;
+    int32 skip = 10;
+}
+
+message PolicyRequest {
+    string role_id =1;
+    string group = 2;
+    string action = 3;
+}
+
+message MenuData {
+    string path = 1;
+    Handle handle = 2;
+    repeated MenuData children = 3;
+}
+
+message Handle {
+    string icon = 1;
+    string icon_type = 2;
+    string title = 3;
+    int32 order = 4;
+    // json:"iframeLink"
+    string iframe_link = 5; 
+    // json:"externalLink"
+    string external_link = 6;
+    repeated string roles = 7; 
+    repeated string permissions = 8;
+    // `xorm:"keep_alive" json:"keepAlive"`
+    bool keep_alive = 9;
+    // `xorm:"hide_in_menu" json:"hideInMenu"`
+    bool hide_in_menu = 10;
+}

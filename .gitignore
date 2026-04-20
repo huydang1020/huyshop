@@ -1,0 +1,67 @@
+# ========================
+# Environment files
+# ========================
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ========================
+# Go — compiled binaries
+# ========================
+api/api
+user/user
+product/product
+voucher/voucher
+permission/permission
+cron/cron
+header/header
+
+# Go build cache
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# ========================
+# Node.js / Frontend
+# ========================
+node_modules/
+**/node_modules/
+
+# Next.js
+customer/.next/
+customer/out/
+
+# Vite / React build
+new-admin/dist/
+new-admin/build/
+
+# Yarn / npm
+.yarn/cache
+.yarn/unplugged
+.pnp.*
+
+# ========================
+# OS / Editor
+# ========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========================
+# Logs
+# ========================
+*.log
+logs/
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml

@@ -1,0 +1,461 @@
+syntax = "proto3";
+
+package user;
+option go_package = "github.com/huyshop/header/user";
+import "common.proto";
+import "permission.proto";
+
+service UserService {
+	// user
+	rpc SignIn (User) returns (SignInResponse);
+	rpc SignOut (User) returns (common.Empty);
+	rpc GetUser (UserRequest) returns (User);
+    rpc ListUsers (UserRequest) returns (Users);
+    rpc CreateUser (User) returns (common.Empty);
+    rpc UpdateUser (User) returns (common.Empty);
+    rpc DeleteUser (User) returns (common.Empty);
+	rpc IsExistUser (User) returns (common.IsExist);
+	rpc SendResetPasswordOtp(User) returns (common.TTL);
+	rpc ResetPassword (User) returns (common.Empty);
+	rpc ChangePassword(ChangePasswordRequest) returns (common.Empty);
+
+	// customer
+	rpc SignInAfterVerifyOtp (User) returns (SignInResponse);
+	rpc SignInCustomer (User) returns (SignInResponse);
+	rpc VerifyEmail(User) returns (common.Empty);
+	rpc SendVerifyOtp (User) returns (common.TTL);
+	rpc CreateCustomer (User) returns (common.Empty);
+
+	// userPoint
+	rpc GetUserPoint (UserPointRequest) returns (UserPoint);
+	rpc ListUserPoint (UserPointRequest) returns (UserPoints);
+
+	// point_exchange
+	rpc ListPointExchange (PointExchangeRequest) returns (PointExchanges);
+	rpc GetPointExchange (PointExchange) returns (PointExchange);
+	rpc CreatePointExchange (PointExchange) returns (PointExchange);
+
+	// store
+	rpc ListStore (StoreRequest) returns (Stores);
+	rpc GetStore (StoreRequest) returns (Store);
+	rpc CreateStore (Store) returns (common.Empty);
+	rpc UpdateStore (Store) returns (common.Empty);
+	rpc DeleteStore (Store) returns (common.Empty);
+	rpc CountStore (StoreRequest) returns (common.Count);
+
+	// partner
+	rpc ListPartner (PartnerRequest) returns (Partners);
+	rpc GetPartner (PartnerRequest) returns (Partner);
+	rpc CreatePartner (Partner) returns (common.Empty);
+	rpc UpdatePartner (Partner) returns (common.Empty);
+	rpc DeletePartner (Partner) returns (common.Empty);
+
+	// plans
+	rpc ListPlans (PlansRequest) returns (Plans);
+	rpc GetPlan (Plan) returns (Plan);
+	rpc CreatePlan (Plan) returns (common.Empty);
+	rpc UpdatePlan (Plan) returns (common.Empty);
+	rpc DeletePlan (Plan) returns (common.Empty);
+
+	// order_plan
+	rpc ListOrderPlan (OrderPlanRequest) returns (OrderPlans);
+	rpc GetOrderPlan (OrderPlan) returns (OrderPlan);
+	rpc CreateOrderPlan (OrderPlan) returns (OrderPlan);
+	rpc UpdateOrderPlan (OrderPlan) returns (common.Empty);
+	rpc CreateOrderPlanVNpay (OrderPlan) returns (common.Empty);
+
+	rpc ListUserAddress (UserAddressRequest) returns (UserAddresses);
+	rpc GetUserAddress (UserAddress) returns (UserAddress);
+	rpc CreateUserAddress (UserAddress) returns (common.Empty);
+	rpc UpdateUserAddress (UserAddress) returns (common.Empty);
+	rpc DeleteUserAddress (UserAddress) returns (common.Empty);
+
+	// report
+	rpc GetReportUser (ReportRequest) returns (ReportUsers);
+}
+
+message User {
+    // `xorm:"pk"`
+	string id = 1;
+	string full_name = 2;
+	string phone_number = 3;
+	string email = 4;
+	string username = 9;
+	string password = 10;
+	string role_id = 11;
+	string state = 14;
+	enum State {
+		active = 0;
+		inactive = 1;
+	}
+	int64 birthday = 15;
+	// `xorm:"-"`
+	permission.Role role = 12;
+    // `xorm:"-"`
+	repeated permission.Page pages = 13;
+	int64 created_at = 16;
+	int64 updated_at = 17;
+	// `xorm:"-"`
+	UserPoint point = 18;
+	// `xorm:"text"`
+	string avatar = 19;
+	string partner_id = 20;
+	// `xorm:"-"`
+	Partner partner = 21;
+	// `xorm:"-"`
+	string verify_otp = 22;
+	// `xorm:"-"`
+	int32 cart_quantity = 23;
+	// `xorm:"-"`
+	int32 favorite_quantity = 24;
+	// `xorm:"-"`
+	repeated UserAddress user_addresses = 25;
+	// `xorm:"-"`
+	int64 points_used = 26;
+	// `xorm:"-"`
+	int64 total_amount_spent = 27;
+	// `xorm:"-"`
+	int32 total_orders = 28;
+	// `xorm:"-"`
+	int64 total_earned_points = 29;
+	// `xorm:"-"`
+	int64 total_spent_points = 30;
+}
+
+message ChangePasswordRequest {
+	string user_id = 1;
+	string old_password = 2;
+	string new_password = 3;
+}
+
+message UserAddress {
+	 // `xorm:"pk"`
+	string id = 1;
+	string user_id = 2;
+	string province = 3;
+	string district = 4;
+	string ward = 5;
+	string address = 6;
+	string is_default = 7;
+	string full_name = 8;
+	string phone = 9;
+	// `xorm:"-"`
+	string full_address = 10;
+	int64 created_at = 11;
+	int64 updated_at = 12;
+}
+
+message UserAddressRequest {
+	string id = 1;
+	string user_id = 2;
+	repeated string user_ids = 3;
+	string province = 4;
+	string district = 5;
+	string ward = 6;
+	string address = 7;
+	string type = 8;
+	string is_default = 9;
+	int32 limit = 10;
+	int32 skip = 11;
+	repeated string ids = 12;
+}
+
+message UserAddresses {
+	repeated UserAddress user_addresses = 1;
+	int32 total = 2;
+}
+
+message Users {
+    repeated User users = 1;
+	int64 total = 2;
+}
+
+message SignInResponse {
+	User user = 1;
+	string accessToken = 2;
+}
+
+message UserRequest {
+    string id = 1;
+    string full_name = 2;
+    string phone_number = 3;
+	string email = 9;
+    string username = 4;
+    string role_id = 5;
+	string state = 6;
+	int32 limit = 7;
+	int32 skip = 8;
+	int64 from = 10; // timestamp
+	int64 to = 11; // timestamp
+	repeated string ids = 12;
+}
+
+message UserPoint {
+	// `xorm:"pk"`
+	string user_id = 1;
+	// `xorm:"points" json:"points"`
+	int64 points = 2;
+	int64 old_points = 3;
+	// `xorm:"total_points" json:"total_points"`
+	int64 total_points = 4;
+	int64 created_at = 5;
+	int64 update_at = 6;
+}
+
+message UserPointRequest {
+	string user_id = 1;
+	repeated string user_ids = 2;
+	int32 limit = 4;
+	int32 skip = 5;
+}
+
+message UserPoints {
+	repeated UserPoint user_points = 1;
+	int32 total = 2;
+}
+
+message PointExchange {
+	// `xorm:"pk"`
+	string id = 1;
+	string receiver_id = 2;
+	// `xorm:"-"`
+	User receiver = 3;
+	int64 points = 4;
+	string description = 5;
+	int64 created_at = 6;
+	int64 updated_at = 7;
+}
+
+message PointExchangeRequest {
+	string id = 1;
+	repeated string ids = 5;
+	string receiver_id = 2;
+	int64 points = 3;
+	string description = 4;
+	int32 limit = 6;
+	int32 skip = 7;
+	repeated string receiver_ids = 8;
+}
+
+message PointExchanges {
+	repeated PointExchange point_exchanges = 1;
+	int32 total = 2;
+}
+
+message Store {
+	// `xorm:"pk"`
+	string id = 1;
+	string name = 2;
+	string logo = 3;
+	string address = 4;
+	string province = 5;
+	string district = 6;
+	string ward = 7;
+	string lng = 8;
+	string lat = 9;
+	string state = 10;
+	enum State {
+		active = 0;
+		inactive = 1;
+	}
+	string partner_id = 11;
+	// `xorm:"-"`
+	Partner partner = 12;
+	string phone_number = 13;
+	// `xorm:"text"`
+	string description = 14;
+	int64 created_at = 15;
+	int64 updated_at = 16;
+	int32 quantity_product = 17;
+	int32 followers = 18;
+	// int32 reviews = 19;
+	string slug = 20;
+	// `xorm:"-"`
+	string full_address = 21; // Địa chỉ đầy đủ, bao gồm tên đường, phường/xã, quận/huyện, tỉnh/thành phố
+}
+
+message StoreRequest {
+	string id = 1;
+    repeated string ids = 13;
+	string partner_id = 14;
+	repeated string partner_ids = 15;
+	string name = 2;
+	string address = 3;
+	string province = 4;
+	string district = 5;
+	string ward = 6;
+	string lng = 7;
+	string lat = 8;
+	int32 limit = 9;
+	int32 skip = 10;
+	string state = 12;
+	string phone_number = 16;
+	string slug = 17;
+}
+
+message Stores {
+	repeated Store stores = 1;
+	int32 total = 2;
+}
+
+message Partner {
+	// `xorm:"pk"`
+	string id = 1;
+	string name = 2;
+	string type = 3;
+	enum Type {
+		system = 0;
+		admin = 1;
+		member = 2;
+		seller = 3;
+	}
+	string state = 4;
+	enum State {
+		active = 0;
+		inactive = 1;
+	}
+	int32 max_stores_allowed = 8;
+	int32 current_stores_count = 5;
+	int32 max_products_per_store = 9;
+	int64 created_at = 6;
+	int64 updated_at = 7;
+	string plan_id = 10;
+	// `xorm:"-"`
+	Plan plan = 11;
+	int64 plan_expired_at = 12;
+	string plan_type = 16;
+	// `xorm:"-"`
+	repeated OrderPlan order_plan = 13;
+}
+
+message PartnerRequest {
+	string id = 1;
+	repeated string ids = 2;
+	string name = 3;
+	string type = 4;
+	int32 limit = 5;
+	int32 skip = 6;
+	string state = 7;
+	int64 from = 8; // timestamp
+	int64 to = 9; // timestamp
+}
+
+message Partners {
+	repeated Partner partners = 1;
+	int32 total = 2;
+}
+
+message OrderPlan {
+	// `xorm:"pk"`
+	string id = 1;
+	string user_id = 2;
+	string plan_id = 3;
+	string old_plan_id = 5;
+	string order_code = 4;
+	int64 start_date = 8;
+	int64 end_date = 9;
+	string type = 11;
+	enum Type {
+		upgrade = 0;
+		renew = 1;
+		create = 2;
+	}
+	string plan_type = 13;
+	int64 created_at = 6;
+	int64 updated_at = 10;
+	 // `xorm:"-"`
+	string vnpay_return_url = 17;
+	 // `xorm:"-"`
+	string vnp_redirect_url = 19;
+	// `xorm:"-"`
+	string ip_address = 18;
+	// `xorm:"-"`
+	Plan plan = 7;
+	// `xorm:"-"`
+	User user = 12;
+	// `xorm:"-"`
+	UpdatePlan update_plan = 15;
+	int64 plan_price = 16;
+}
+
+message OrderPlans {
+	repeated OrderPlan order_plans = 1;
+	int32 total = 2;
+}
+
+message UpdatePlan {
+	Plan plan_old = 1;
+	Plan plan_new = 2;
+	int64 new_expired_at = 4;
+	int64 remaining_amount = 5;
+}
+
+message OrderPlanRequest {
+	string id = 1;
+	repeated string ids = 2;
+	string user_id = 3;
+	string plan_id = 4;
+	int64 expired_at = 5;
+	int64 start_date = 6;
+	repeated string includes = 10; // plan, user
+	int64 end_date = 7;
+	int32 limit = 8;
+	int32 skip = 9;
+}
+
+message Plan {
+	// `xorm:"pk"`
+	string id = 1;
+	string name = 2;
+	string state = 3;
+	enum State {
+		active = 0;
+		inactive = 1;
+	}
+	repeated string features = 6;
+	repeated Price prices = 7;
+	int32 max_stores_allowed = 8;
+	int32 max_products_per_store = 9;
+	int64 created_at = 4;
+	int64 updated_at = 5;
+}
+
+message Price {
+	string type = 1;
+	int64 price = 2;
+}
+
+message PlansRequest {
+	string id = 1;
+	repeated string ids = 2;
+	string name = 3;
+	string state = 4;
+	int32 limit = 5;
+	int32 skip = 6;
+}
+
+message Plans {
+	repeated Plan plans = 1;
+	int32 total = 2;
+}
+
+message ReportRequest {
+	string from = 1; // timestamp
+	string to = 2; // timestamp
+	string order_by = 3;
+}
+
+message ReportUser {
+	string user_id = 1;
+	string full_name = 2;
+	string phone_number = 3;
+	int64 total_spent = 4; // Tổng số tiền đã chi tiêu
+	int64 total_points_earned = 5; // Tổng số điểm đã kiếm được
+	int64 total_points_spent = 6; // Tổng số điểm đã sử dụng
+	int32 total_orders = 7; // Tổng số đơn hàng đã đặt
+}
+
+message ReportUsers {
+	repeated ReportUser users = 1;
+	int32 total = 2;
+}

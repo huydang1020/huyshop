@@ -1,0 +1,24 @@
+{
+  "document": "Document",
+  "qa": "Q&A",
+  "setting": "Settings",
+  "logoutTip": "Do you want to logout?",
+  "viewAll": "View All Messages",
+  "notifications": "Notifications",
+  "markAllAsRead": "Make All as Read",
+  "clearNotifications": "Clear",
+  "versionMonitorTitle": "System Version Update Notification",
+  "versionMonitorContent": "A new version of the system has been detected, do you want to refresh the page now?",
+  "versionMonitorConfirm": "Refresh Now",
+  "versionMonitorCancel": "Later",
+  "search": {
+    "placeholder": "Nhập từ khóa để tìm kiếm",
+    "title": "Tìm kiếm",
+    "select": "Chọn",
+    "navigate": "Chuyển",
+    "close": "Đóng",
+    "noResults": "Không tìm thấy kết quả",
+    "noRecent": "Không có lịch sử tìm kiếm",
+    "total": "Tổng {{total}} mục"
+  }
+}

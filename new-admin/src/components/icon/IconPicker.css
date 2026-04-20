@@ -1,0 +1,65 @@
+.bt-icon:hover {
+  background-color: #e6f4ff;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+
+.icon-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px;
+  background-color: #FAFAFA;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.icon-item {
+  width: calc(100% / 8);
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.icon-item-active {
+  background-color: #e6f4ff;
+  border-radius: 10px;
+}
+
+.icon-mask {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #e6f4ff;
+  border-radius: 10px;
+}
+
+.icon-mask-text {
+  font-size: 11px;
+  margin-top: 8px;
+  opacity: 0.8;
+  color: #1677ff;
+}
+
+.icon-name {
+  font-size: 11px;
+  margin-top: 8px;
+  opacity: 0.8;
+  color: #555;
+}
+
+.icon-name-active {
+  color: #1677ff;
+}
