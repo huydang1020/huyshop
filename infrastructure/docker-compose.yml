@@ -1,0 +1,136 @@
+# version: "3.8"
+
+services:
+  # API Gateway
+  api:
+    build: ../api
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      - PORT=8080
+      - PRODUCT_GRPC_SERVER=product:8000
+      - PERM_GRPC_SERVER=permission:7000
+      - USER_GRPC_SERVER=user:6000
+      - VOUCHER_GRPC_SERVER=voucher:4000
+      - JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - CLOUDINARY_NAME=${{ secrets.DOCKER_USERNAME }}
+      - CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+      - CLOUDINARY_SECRET=${{ secrets.CLOUDINARY_SECRET }}
+      - ADMIN_ROLE=${{ secrets.ADMIN_ROLE }}
+    # env_file:
+    #   - .env
+    depends_on:
+      - user
+      - product
+      - permission
+      - voucher
+    networks:
+      - microservices-network
+
+  # User Service
+  user:
+    build: ../user
+    ports:
+      - "6000:6000"
+    environment:
+      - GRPC_PORT=6000
+      - HTTP_PORT=6001
+      - DB_PATH=${{ secrets.DB_PATH }}
+      - DB_NAME=user
+      - JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+      - JWT_EXPIRE_ACCESS_TOKEN=30 # 30 minutes
+      - JWT_EXPIRE_REFRESH_TOKEN=129600 # 129600 minutes = 30 days
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}
+      - BREVO_URL=https://api.brevo.com/v3/smtp/email
+      - VNP_HASH_SECRET=${{ secrets.VNP_HASH_SECRET }}
+      - VNP_TMNCODE=KYTW3Y69
+      - VNP_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+      - TIME_LIVE_ORDER_REDIS=3600
+      - MIN_PROCESSING_FEE=50000
+      - MAX_USER_ADDRESS=5
+    networks:
+      - microservices-network
+
+  # Product Service
+  product:
+    build: ../product
+    ports:
+      - "8000:8000"
+    environment:
+      - GRPC_PORT=8000
+      - DB_PATH=${{ secrets.DB_PATH }}
+      - DB_NAME=product
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - REDIS_CART_EXPIRE=60
+      - VNP_HASH_SECRET=${{ secrets.VNP_HASH_SECRET }}
+      - VNP_TMNCODE=KYTW3Y69
+      - VNP_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+      - TIME_LIVE_ORDER_REDIS=3600
+    networks:
+      - microservices-network
+
+  # Permission Service
+  permission:
+    build: ../permission
+    ports:
+      - "7000:7000"
+    environment:
+      - GRPC_PORT=7000
+      - DB_PATH=${{ secrets.DB_PATH }}
+      - DB_NAME=permission
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+    networks:
+      - microservices-network
+
+  # Voucher Service
+  voucher:
+    build: ../voucher
+    ports:
+      - "4000:4000"
+    environment:
+      - GRPC_PORT=4000
+      - DB_PATH=${{ secrets.DB_PATH }}
+      - DB_NAME=voucher
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+    networks:
+      - microservices-network
+
+  # Redis
+  redis:
+    image: redis:alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - microservices-network
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: ecommerce
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - microservices-network
+
+volumes:
+  mysql_data:
+
+networks:
+  microservices-network:
+    driver: bridge
